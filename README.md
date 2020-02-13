@@ -1,76 +1,74 @@
-# XOR key recovery
+# XOR tools
 
 ## Description
 
-Short script able to recover repeating XOR key from ciphertext, based on
-plaintext fragment expected to be found in decrypted file.
+A set of tools for XOR encryption/decryption/key recovery (based on known plaintext). 
 
 ## Install
 
 ```
-git clone --recursive https://github.com/nshadov/xor_key_recovery.git
+git clone https://github.com/lukaskuzmiak/xor_tools.git
+python setup.py install
 ```
 
 ## Example Usage
 
-First, we create example XOR encrypted '/bin/ls' file:
+First, we create example XOR encrypted `samples/binary_pe32` file:
 
-```
-$ ./xor_encrypt_file.py -f /bin/ls -o encrypted.file -k "secret"
-```
-
-Now to recover secret key "secret", we use second script. We expect ELF
-binary to contain phrase ```__gmon_start__```. We dont know key lenght, but
-after few tries with consecutive ```n=1```, ```n=2```, ```n=3``` ... we finally try ```n=6```:
-
-```
-$ ./xor_key_recovery.py -f encrypted.file -o decrypted.file -p "__gmon_start__" -n 6
-
-[+] Fragment '__gmon_start__' expected to be found in plaintext
-[+] Reading encrypted file from: 'encrypted.file'
-[+] Found plaintext at position: 3909
-[+] Key found: RollingKey(['0x73', '0x65', '0x63', '0x72', '0x65', '0x74'])
-[+] Saving decrypted file to: 'decrypted.file'
+```bash
+xor_encrypt_file -f samples/binary_pe32 -o encrypted.file -k "secret"
 ```
 
-Encryption key, when found is presented in hex format and decrypted file is saved.
+You can also enter non-ascii keys as `-k "\xaa\xbb\xcc\xdd`.
+
+To recover the secret key `secret`, the second tool `xor_key_recovery` is used. We expect a PE binary to contain a phrase `This program cannot be run in DOS`. We don't know the key length, but after few tries with consecutive `-n 1`, `-n 2`, `-n 3` ... we finally try `-n 6`:
+
+```bash
+xor_key_recovery -f encrypted.file -o decrypted.file -p "This program cannot be run in DOS" -n 6
+
+[+] Found plaintext at position: 78
+[*] Key found: 736563726574
+[+] Saving decrypted file to: decrypted.file
+```
+
+You can also enter non-ascii plaintext as `-p "\xaa\xbb\xcc\xdd`.
 
 ## How it works
 
-It's quite easy to understand on example but it's not a formal proof thoguh (or maybe because of it).
+It's quite easy to understand on example but it's not a formal proof though (or maybe because of it).
 
 ### Prepare template
 
-First we need part of plaintext before being encrypted. Anything slightly longer than key lenght would be sufficient but to avoid false positives twice as long plaintext is prefered. We could in many cases guess it (like common phrases, strings etc.).
+First we need part of plaintext before being encrypted. Anything slightly longer than key length would be sufficient but to avoid false positives twice as long plaintext is preferred. We could in many cases guess it (like common phrases, strings etc.).
 
 ```
 P[] = "This program cannot be run in DOS"
 ```
 
-The other thing we will need is secret key length -- we could also guess it or iterate over possible lengths (n=3, n=4, n=5 ...).
+The other thing we will need is secret key length -- we could also guess it or iterate over possible key lengths (n=3, n=4, n=5 ...).
 
 ```
-k_len = 6
+keylength = 6
 ```
 
-Now, if we xor symbols from plaintext that are keylenght apart, we receive:
+Now, if we xor symbols from plaintext that are keylength apart, we receive:
 
 ```
 T[1] = P[i] XOR P[i+k_len]
 ```
 
-We build template that way of first part of the string XORed with another symbols one keylenght apart. It's easy as it sounds.
+We build template that way of first part of the string XORed with another symbols one keylength apart.
 
 ### Surprising XOR cipher characteristics
 
-Because in cipertext symbols one keylenght apart are XORed with the same secret key symbol we get
+Because in ciphertext symbols one keylength apart are XORed with the same secret key symbol we get:
 
 ```
 C[i] = P[i] XOR Key[i]
 C[i+k_len] = P[i+k_len] XOR Key[i]
 ```
 
-If we XOR these two, we suprisingly (because of XOR characteristics) receive something independent from secret key used:
+If we XOR these two, we surprisingly (because of XOR characteristics) receive something independent from secret key used:
 
 ```
 C[i] XOR C[i+k_len] = ( P[i] XOR Key[i] ) XOR ( P[i+k_len] XOR Key[i] ) =
@@ -91,4 +89,4 @@ From this place, it's trivial to extract secret key.
 
 Please submit bugs/propositions via GitHub.
 
-Author: nshadov
+Original author: nshadov
