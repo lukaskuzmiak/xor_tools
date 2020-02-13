@@ -19,7 +19,7 @@ First, we create example XOR encrypted `samples/binary_pe32` file:
 xor_encrypt_file -f samples/binary_pe32 -o encrypted.file -k "secret"
 ```
 
-You can also enter non-ascii keys as `-k "\xaa\xbb\xcc\xdd`.
+You can also enter non-ascii keys as `-k "\xaa\xbb\xcc\xdd"`.
 
 To recover the secret key `secret`, the second tool `xor_key_recovery` is used. We expect a PE binary to contain a phrase `This program cannot be run in DOS`. We don't know the key length, but after few tries with consecutive `-n 1`, `-n 2`, `-n 3` ... we finally try `-n 6`:
 
@@ -31,7 +31,7 @@ xor_key_recovery -f encrypted.file -o decrypted.file -p "This program cannot be 
 [+] Saving decrypted file to: decrypted.file
 ```
 
-You can also enter non-ascii plaintext as `-p "\xaa\xbb\xcc\xdd`.
+You can also enter non-ascii plaintext as `-p "\xaa\xbb\xcc\xdd"`.
 
 ## How it works
 
