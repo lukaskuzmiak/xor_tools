@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+from xor_tools import plaintext_bytes
 from xor_tools.rolling_key import RollingKey
-from xor_tools.tools import plaintext_bytes
 
 
 def main():

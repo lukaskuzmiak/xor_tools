@@ -9,8 +9,8 @@ xor_key_recovery -f samples/binary_pe32_encrypted -p "This program cannot be run
 
 import argparse
 import sys
+from xor_tools import plaintext_bytes
 from xor_tools.rolling_key import RollingKey
-from xor_tools.tools import plaintext_bytes
 
 
 def calc_template(text, keylength):

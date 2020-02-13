@@ -12,7 +12,7 @@ def read(fname):
 
 setuptools.setup(
     name="xor_tools",
-    version="1.0.0",
+    version="1.0.1",
     python_requires='>3.5.2',
     url='https://github.com/lukaskuzmiak/xor_tools',
     author="Lukas Kuzmiak, nshadov",
